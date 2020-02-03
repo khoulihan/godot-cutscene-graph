@@ -1,8 +1,7 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://addons/hyh.cutscene_graph/scripts/BranchValue.gd" type="Script" id=1]
-[ext_resource path="res://addons/hyh.cutscene_graph/icon_remove.svg" type="Texture" id=2]
-
+[ext_resource path="res://addons/hyh.cutscene_graph/icon_remove.svg" type="Texture" id=1]
+[ext_resource path="res://addons/hyh.cutscene_graph/scripts/BranchValue.gd" type="Script" id=2]
 
 [node name="BranchValue" type="MarginContainer"]
 margin_right = 40.0
@@ -11,7 +10,7 @@ mouse_filter = 1
 custom_constants/margin_right = 10
 custom_constants/margin_left = 10
 custom_constants/margin_bottom = 10
-script = ExtResource( 1 )
+script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -40,6 +39,6 @@ caret_blink = true
 margin_left = 117.0
 margin_right = 145.0
 margin_bottom = 30.0
-icon = ExtResource( 2 )
+icon = ExtResource( 1 )
 [connection signal="text_changed" from="HorizontalLayout/ValueEdit" to="." method="_on_ValueEdit_text_changed"]
 [connection signal="pressed" from="HorizontalLayout/RemoveButton" to="." method="_on_RemoveButton_pressed"]

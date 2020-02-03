@@ -12,6 +12,7 @@ const BranchNode = preload("../resources/BranchNode.gd")
 const DialogueChoiceNode = preload("../resources/DialogueChoiceNode.gd")
 const VariableSetNode = preload("../resources/VariableSetNode.gd")
 const ActionNode = preload("../resources/ActionNode.gd")
+const SubGraph = preload("../resources/SubGraph.gd")
 
 const EditorTextNodeClass = preload("./EditorTextNode.gd")
 const EditorBranchNodeClass = preload("./EditorBranchNode.gd")
@@ -19,6 +20,7 @@ const EditorChoiceNodeClass = preload("./EditorChoiceNode.gd")
 const EditorSetNodeClass = preload("./EditorSetNode.gd")
 const EditorGraphNodeBaseClass = preload("./EditorGraphNodeBase.gd")
 const EditorActionNodeClass = preload("./EditorActionNode.gd")
+const EditorSubGraphNodeClass = preload("./EditorSubGraphNode.gd")
 
 const EditorTextNode = preload("../scenes/EditorTextNode.tscn")
 const EditorBranchNode = preload("../scenes/EditorBranchNode.tscn")
@@ -26,12 +28,13 @@ const EditorChoiceNode = preload("../scenes/EditorChoiceNode.tscn")
 const EditorSetNode = preload("../scenes/EditorSetNode.tscn")
 const EditorGraphNodeBase = preload("../scenes/EditorGraphNodeBase.tscn")
 const EditorActionNode = preload("../scenes/EditorActionNode.tscn")
+const EditorSubGraphNode = preload("../scenes/EditorSubGraphNode.tscn")
 
 class OpenGraph:
 	var graph
 	var path
 	var dirty
-	
+
 	func get_filename():
 		var name
 		if path == null:
@@ -55,7 +58,8 @@ enum GraphPopupMenuItems {
 	ADD_BRANCH_NODE,
 	ADD_CHOICE_NODE,
 	ADD_SET_NODE,
-	ADD_ACTION_NODE
+	ADD_ACTION_NODE,
+	ADD_SUB_GRAPH_NODE
 }
 
 enum NodePopupMenuItems {
@@ -75,6 +79,7 @@ var _edited
 # Nodes
 var _save_dialog
 var _open_graph_dialog
+var _open_sub_graph_dialog
 var _open_character_dialog
 onready var _graph_list = $EditorSplitter/SidebarSplitter/GraphList
 onready var _graph_edit = $EditorSplitter/GraphEdit
@@ -90,6 +95,7 @@ var _node_to_remove
 var _node_for_popup
 var _characters
 var _character_to_remove
+var _sub_graph_editor_node_for_assignment
 
 
 func _init():
@@ -100,23 +106,23 @@ func _init():
 func _ready():
 	# Set up graph list
 	_graph_list.connect("item_selected", self, "_graph_selection_changed")
-	
+
 	# Set up editor
 	_graph_edit.connect("popup_request", self, "_graph_popup_requested")
 	# TODO: Not sure how to achieve hiding the popup when the mouse is clicked elsewhere
 	# The documentation suggests it should be automatic unless measures are taken, but
 	# that does not seem to be the case
 	#_graph_edit.connect("gui_input", self, "_graph_popup_dismissed")
-	
+
 	# Context menu
 	_graph_popup.connect("index_pressed", self, "_graph_popup_index_pressed")
 	_node_popup.connect("index_pressed", self, "_node_popup_index_pressed")
-	
+
 	# Confirmation dialog
 	_confirmation_dialog.connect("confirmed", self, "_action_confirmed")
-	
+
 	_update_file_list()
-	
+
 	# Set up save dialog
 	_save_dialog = EditorFileDialog.new()
 	_save_dialog.add_filter("*.tres")
@@ -124,7 +130,7 @@ func _ready():
 	_save_dialog.mode = EditorFileDialog.MODE_SAVE_FILE
 	self.add_child(_save_dialog)
 	_save_dialog.connect("file_selected", self, "_file_selected")
-	
+
 	# Set up Open dialogs
 	_open_graph_dialog = EditorFileDialog.new()
 	_open_graph_dialog.add_filter("*.tres")
@@ -132,14 +138,21 @@ func _ready():
 	_open_graph_dialog.mode = EditorFileDialog.MODE_OPEN_FILE
 	self.add_child(_open_graph_dialog)
 	_open_graph_dialog.connect("file_selected", self, "_graph_file_selected_for_opening")
-	
+
+	_open_sub_graph_dialog = EditorFileDialog.new()
+	_open_sub_graph_dialog.add_filter("*.tres")
+	_open_sub_graph_dialog.access = EditorFileDialog.ACCESS_RESOURCES
+	_open_sub_graph_dialog.mode = EditorFileDialog.MODE_OPEN_FILE
+	self.add_child(_open_sub_graph_dialog)
+	_open_sub_graph_dialog.connect("file_selected", self, "_sub_graph_file_selected_for_opening")
+
 	_open_character_dialog = EditorFileDialog.new()
 	_open_character_dialog.add_filter("*.tres")
 	_open_character_dialog.access = EditorFileDialog.ACCESS_RESOURCES
 	_open_character_dialog.mode = EditorFileDialog.MODE_OPEN_FILE
 	self.add_child(_open_character_dialog)
 	_open_character_dialog.connect("file_selected", self, "_character_file_selected_for_opening")
-	
+
 	# Set up file menu
 	var fileMenuPopup = $MenuBar/FileMenuButton.get_popup()
 	fileMenuPopup.connect("index_pressed", self, "_file_menu_index_pressed")
@@ -172,6 +185,10 @@ func _get_open_path():
 	_open_graph_dialog.popup_centered_minsize(Vector2(800, 700))
 
 
+func _get_sub_graph_open_path():
+	_open_sub_graph_dialog.popup_centered_minsize(Vector2(800, 700))
+
+
 func _file_selected(path):
 	_edited.path = path
 	_perform_save()
@@ -184,6 +201,19 @@ func _graph_file_selected_for_opening(path):
 		_error_dialog.popup_centered()
 		return
 	edit_graph(res, path)
+
+
+func _sub_graph_file_selected_for_opening(path):
+	var res = load(path)
+	if not res is CutsceneGraph:
+		_error_dialog.dialog_text = "The selected resource is not a CutsceneGraph."
+		_error_dialog.popup_centered()
+		return
+	_configure_sub_graph_node(_sub_graph_editor_node_for_assignment, res)
+
+
+func _configure_sub_graph_node(editor_node, res):
+	editor_node.sub_graph_selected(res)
 
 
 func _character_file_selected_for_opening(path):
@@ -233,6 +263,9 @@ func _graph_popup_index_pressed(index):
 		GraphPopupMenuItems.ADD_ACTION_NODE:
 			new_editor_node = EditorActionNode.instance()
 			new_graph_node = ActionNode.new()
+		GraphPopupMenuItems.ADD_SUB_GRAPH_NODE:
+			new_editor_node = EditorSubGraphNode.instance()
+			new_graph_node = SubGraph.new()
 	new_graph_node.offset = _last_popup_position
 	_graph_edit.add_child(new_editor_node)
 	if _graph_edit.get_child_count() == 3: # TODO: magic number
@@ -336,6 +369,15 @@ func _on_open():
 	_get_open_path()
 
 
+func _sub_graph_selection_requested(node):
+	_sub_graph_editor_node_for_assignment = node
+	_get_sub_graph_open_path()
+
+
+func _sub_graph_open_requested(graph, editor_node):
+	edit_graph(graph, graph.resource_path)
+
+
 func _on_close():
 	if _edited:
 		if _edited.dirty:
@@ -369,16 +411,16 @@ func _on_save_as():
 
 func _draw_edited_graph():
 	print ("Drawing edited graph")
-	
+
 	# Clear the existing graph
 	_clear_displayed_graph()
-	
+
 	if _edited:
 		# Add the characters from the edited graph
 		for character in _edited.graph.characters:
 			_characters.append(character)
 		_update_character_list()
-		
+
 		# Now create and configure the display nodes
 		for node in _edited.graph.nodes:
 			var editor_node
@@ -394,12 +436,14 @@ func _draw_edited_graph():
 			elif node is ActionNode:
 				editor_node = EditorActionNode.instance()
 				editor_node.populate_characters(_characters)
+			elif node is SubGraph:
+					editor_node = EditorSubGraphNode.instance()
 			_graph_edit.add_child(editor_node)
 			editor_node.configure_for_node(node)
 			if node == _edited.graph.root_node:
 				editor_node.is_root = true
 			_connect_node_signals(editor_node)
-		
+
 		# Second pass to create connections
 		for node in _edited.graph.nodes:
 			if node.next != null:
@@ -420,6 +464,9 @@ func _connect_node_signals(node):
 	node.connect("popup_request", self, "_node_popup_request", [node.name])
 	node.connect("offset_changed", self, "_node_offset_changed", [node.name])
 	node.connect("modified", self, "_node_modified", [node.name])
+	if node is EditorSubGraphNodeClass:
+		node.connect("sub_graph_selection_requested", self, "_sub_graph_selection_requested", [node])
+		node.connect("sub_graph_open_requested", self, "_sub_graph_open_requested", [node])
 
 
 func _node_modified(node):
@@ -463,7 +510,7 @@ func _clear_displayed_graph():
 func _update_edited_graph():
 	if _edited != null:
 		#_edited.graph = CutsceneGraph.new()
-		
+
 		for character in _characters:
 			if not character in _edited.graph.characters:
 				_edited.graph.characters.append(character)
@@ -481,7 +528,7 @@ func _update_edited_graph():
 			var to_slot = connection.to_port
 			var from_dialogue_node = from.node_resource
 			var to_dialogue_node = to.node_resource
-			if from_dialogue_node is DialogueTextNode or from_dialogue_node is VariableSetNode or from_dialogue_node is ActionNode:
+			if from_dialogue_node is DialogueTextNode or from_dialogue_node is VariableSetNode or from_dialogue_node is ActionNode or from_dialogue_node is SubGraph:
 				from_dialogue_node.next = to_dialogue_node
 			elif from_dialogue_node is DialogueChoiceNode or from_dialogue_node is BranchNode:
 				if from_slot == 0:
@@ -558,4 +605,3 @@ func _on_RemoveCharacterButton_pressed():
 		_confirmation_action = ConfirmationActions.REMOVE_CHARACTER
 		_confirmation_dialog.dialog_text = "Are you sure want to remove this character? Any nodes using it will switch to a different character."
 		_confirmation_dialog.popup_centered()
-
