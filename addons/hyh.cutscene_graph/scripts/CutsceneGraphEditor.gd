@@ -34,6 +34,8 @@ class OpenGraph:
 	var graph
 	var path
 	var dirty
+	var zoom
+	var scroll_offset
 
 	func get_filename():
 		var name
@@ -171,6 +173,8 @@ func edit_graph(object, path):
 		edited.graph = object
 		edited.path = path
 		edited.dirty = false
+		edited.zoom = 1.0
+		edited.scroll_offset = Vector2(0, 0)
 		_open_graphs.append(edited)
 	_edited = edited
 	_draw_edited_graph()
@@ -414,7 +418,7 @@ func _draw_edited_graph():
 	# Clear the existing graph
 	_clear_displayed_graph()
 
-	if _edited:
+	if _edited != null:
 		# Add the characters from the edited graph
 		for character in _edited.graph.characters:
 			_characters.append(character)
@@ -455,6 +459,10 @@ func _draw_edited_graph():
 					if node.branches[index]:
 						var to = _get_editor_node_for_graph_node(node.branches[index])
 						_graph_edit.connect_node(from.name, index + 1, to.name, 0)
+		
+		if _edited.scroll_offset != null:
+			_graph_edit.set_deferred("scroll_offset", _edited.scroll_offset)
+			_graph_edit.zoom = _edited.zoom
 
 
 func _connect_node_signals(node):
@@ -508,7 +516,8 @@ func _clear_displayed_graph():
 
 func _update_edited_graph():
 	if _edited != null:
-		#_edited.graph = CutsceneGraph.new()
+		_edited.zoom = _graph_edit.zoom
+		_edited.scroll_offset = Vector2(_graph_edit.scroll_offset)
 
 		for character in _characters:
 			if not character in _edited.graph.characters:
