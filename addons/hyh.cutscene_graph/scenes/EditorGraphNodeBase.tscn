@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/hyh.cutscene_graph/scripts/EditorGraphNodeBase.gd" type="Script" id=1]
+
+
+[node name="EditorGraphNodeBase" type="GraphNode"]
+margin_right = 304.0
+margin_bottom = 159.0
+title = "Node"
+show_close = true
+script = ExtResource( 1 )

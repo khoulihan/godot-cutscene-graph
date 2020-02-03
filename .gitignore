@@ -1,0 +1,20 @@
+# Godot generated files
+/.import/*
+*.import
+
+# Godot project stuff - just want the addon
+default_env.tres
+icon.png
+project.godot
+
+# Test directories
+test_resources/
+test_scenes/
+
+# Backup files
+*.backup
+
+# File manager crap
+.DS_Store
+._.DS_Store
+

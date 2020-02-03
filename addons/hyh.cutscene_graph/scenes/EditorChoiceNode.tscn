@@ -1,0 +1,71 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://addons/hyh.cutscene_graph/scenes/EditorGraphNodeBase.tscn" type="PackedScene" id=1]
+[ext_resource path="res://addons/hyh.cutscene_graph/scripts/EditorChoiceNode.gd" type="Script" id=2]
+[ext_resource path="res://addons/hyh.cutscene_graph/icon_add.svg" type="Texture" id=3]
+[ext_resource path="res://addons/hyh.cutscene_graph/scenes/ChoiceValue.tscn" type="PackedScene" id=4]
+
+
+[node name="EditorChoiceNode" instance=ExtResource( 1 )]
+margin_right = 431.0
+margin_bottom = 136.0
+title = "Choice"
+slot/0/left_enabled = true
+slot/0/left_type = 0
+slot/0/left_color = Color( 0.949219, 0.274384, 0.479997, 1 )
+slot/0/right_enabled = true
+slot/0/right_type = 0
+slot/0/right_color = Color( 0.813103, 0.957031, 0.299072, 1 )
+slot/1/left_enabled = false
+slot/1/left_type = 0
+slot/1/left_color = Color( 1, 1, 1, 1 )
+slot/1/right_enabled = true
+slot/1/right_type = 0
+slot/1/right_color = Color( 0.813103, 0.957031, 0.299072, 1 )
+slot/2/left_enabled = false
+slot/2/left_type = 0
+slot/2/left_color = Color( 1, 1, 1, 1 )
+slot/2/right_enabled = true
+slot/2/right_type = 0
+slot/2/right_color = Color( 0.813103, 0.957031, 0.299072, 1 )
+script = ExtResource( 2 )
+
+[node name="HeaderContainer" type="MarginContainer" parent="." index="0"]
+margin_left = 16.0
+margin_top = 24.0
+margin_right = 415.0
+margin_bottom = 68.0
+custom_constants/margin_right = 10
+custom_constants/margin_top = 10
+custom_constants/margin_left = 10
+custom_constants/margin_bottom = 10
+
+[node name="HorizontalLayout" type="HBoxContainer" parent="HeaderContainer" index="0"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 389.0
+margin_bottom = 34.0
+alignment = 2
+
+[node name="AddValueButton" type="ToolButton" parent="HeaderContainer/HorizontalLayout" index="0"]
+margin_left = 351.0
+margin_right = 379.0
+margin_bottom = 24.0
+size_flags_horizontal = 8
+icon = ExtResource( 3 )
+
+[node name="ChoiceValue" parent="." index="1" instance=ExtResource( 4 )]
+margin_left = 16.0
+margin_top = 69.0
+margin_right = 415.0
+margin_bottom = 171.0
+
+[node name="ChoiceValue2" parent="." index="2" instance=ExtResource( 4 )]
+margin_left = 16.0
+margin_top = 172.0
+margin_right = 415.0
+margin_bottom = 274.0
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]
+[connection signal="pressed" from="HeaderContainer/HorizontalLayout/AddValueButton" to="." method="_on_AddValueButton_pressed"]
+[connection signal="remove_requested" from="ChoiceValue" to="." method="_value_remove_requested" binds= [ 1 ]]
+[connection signal="remove_requested" from="ChoiceValue2" to="." method="_value_remove_requested" binds= [ 2 ]]

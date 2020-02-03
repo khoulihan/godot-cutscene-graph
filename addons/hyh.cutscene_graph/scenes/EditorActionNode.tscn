@@ -1,0 +1,89 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/hyh.cutscene_graph/scripts/EditorActionNode.gd" type="Script" id=1]
+
+
+[node name="EditorActionNode" type="GraphNode"]
+margin_right = 416.0
+margin_bottom = 121.0
+title = "Action"
+show_close = true
+slot/0/left_enabled = true
+slot/0/left_type = 0
+slot/0/left_color = Color( 0.94902, 0.27451, 0.478431, 1 )
+slot/0/right_enabled = true
+slot/0/right_type = 0
+slot/0/right_color = Color( 0.811765, 0.956863, 0.298039, 1 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RootContainer" type="MarginContainer" parent="."]
+margin_left = 16.0
+margin_top = 24.0
+margin_right = 400.0
+margin_bottom = 162.0
+custom_constants/margin_right = 10
+custom_constants/margin_top = 10
+custom_constants/margin_left = 10
+custom_constants/margin_bottom = 10
+
+[node name="GridContainer" type="GridContainer" parent="RootContainer"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 374.0
+margin_bottom = 128.0
+custom_constants/vseparation = 10
+custom_constants/hseparation = 10
+columns = 2
+
+[node name="Label" type="Label" parent="RootContainer/GridContainer"]
+margin_top = 5.0
+margin_right = 67.0
+margin_bottom = 19.0
+text = "Action:"
+
+[node name="ActionNameEdit" type="LineEdit" parent="RootContainer/GridContainer"]
+margin_left = 77.0
+margin_right = 364.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+
+[node name="Label3" type="Label" parent="RootContainer/GridContainer"]
+margin_top = 37.0
+margin_right = 67.0
+margin_bottom = 51.0
+text = "Character:"
+
+[node name="CharacterSelect" type="OptionButton" parent="RootContainer/GridContainer"]
+margin_left = 77.0
+margin_top = 34.0
+margin_right = 364.0
+margin_bottom = 54.0
+
+[node name="Label4" type="Label" parent="RootContainer/GridContainer"]
+margin_top = 67.0
+margin_right = 67.0
+margin_bottom = 81.0
+text = "Variant:"
+
+[node name="VariantSelect" type="OptionButton" parent="RootContainer/GridContainer"]
+margin_left = 77.0
+margin_top = 64.0
+margin_right = 364.0
+margin_bottom = 84.0
+
+[node name="Label2" type="Label" parent="RootContainer/GridContainer"]
+margin_top = 99.0
+margin_right = 67.0
+margin_bottom = 113.0
+text = "Argument:"
+
+[node name="ArgumentEdit" type="LineEdit" parent="RootContainer/GridContainer"]
+margin_left = 77.0
+margin_top = 94.0
+margin_right = 364.0
+margin_bottom = 118.0
+size_flags_horizontal = 3
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]

@@ -1,0 +1,45 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://addons/hyh.cutscene_graph/scripts/BranchValue.gd" type="Script" id=1]
+[ext_resource path="res://addons/hyh.cutscene_graph/icon_remove.svg" type="Texture" id=2]
+
+
+[node name="BranchValue" type="MarginContainer"]
+margin_right = 40.0
+margin_bottom = 40.0
+mouse_filter = 1
+custom_constants/margin_right = 10
+custom_constants/margin_left = 10
+custom_constants/margin_bottom = 10
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+value = null
+
+[node name="HorizontalLayout" type="HBoxContainer" parent="."]
+margin_left = 10.0
+margin_right = 155.0
+margin_bottom = 30.0
+custom_constants/separation = 10
+
+[node name="Label" type="Label" parent="HorizontalLayout"]
+margin_top = 8.0
+margin_right = 39.0
+margin_bottom = 22.0
+text = "Value:"
+
+[node name="ValueEdit" type="LineEdit" parent="HorizontalLayout"]
+margin_left = 49.0
+margin_right = 107.0
+margin_bottom = 30.0
+size_flags_horizontal = 3
+caret_blink = true
+
+[node name="RemoveButton" type="ToolButton" parent="HorizontalLayout"]
+margin_left = 117.0
+margin_right = 145.0
+margin_bottom = 30.0
+icon = ExtResource( 2 )
+[connection signal="text_changed" from="HorizontalLayout/ValueEdit" to="." method="_on_ValueEdit_text_changed"]
+[connection signal="pressed" from="HorizontalLayout/RemoveButton" to="." method="_on_RemoveButton_pressed"]
