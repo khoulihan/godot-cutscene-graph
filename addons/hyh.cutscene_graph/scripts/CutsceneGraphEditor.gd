@@ -232,8 +232,7 @@ func _character_file_selected_for_opening(path):
 
 func _graph_popup_requested(p_position):
 	if _edited:
-		# TODO: Not sure how to get this position accurate - this offset I'm adding doesn't work at zoom levels other than 1:1
-		_last_popup_position = p_position + _graph_edit.scroll_offset - Vector2(550, 100)
+		_last_popup_position = (p_position / _graph_edit.zoom) + (_graph_edit.scroll_offset / _graph_edit.zoom) - (Vector2(550, 100) / _graph_edit.zoom)
 		_graph_popup.rect_position = p_position
 		_graph_popup.show()
 
