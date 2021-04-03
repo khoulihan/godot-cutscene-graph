@@ -7,8 +7,9 @@ func _enter_tree():
 	add_custom_type("CutsceneGraph", "Resource", preload("resources/CutsceneGraph.gd"), preload("icon_graph_node.svg"))
 	add_custom_type("Character", "Resource", preload("resources/Character.gd"), preload("icon_sprite.svg"))
 	add_custom_type("CharacterVariant", "Resource", preload("resources/CharacterVariant.gd"), preload("icon_texture_rect.svg"))
-	# TODO: Need a new icon for this - should be white at the very least, like other Node-derived types
+	# TODO: Need a new icon for these - should be white at the very least, like other Node-derived types
 	add_custom_type("CutsceneController", "Node", preload("scripts/CutsceneController.gd"), preload("icon_graph_node.svg"))
+	add_custom_type("Cutscene", "Node", preload("scripts/Cutscene.gd"), preload("icon_graph_node.svg"))
 	self.connect("main_screen_changed", self, "_main_screen_changed")
 	
 	editor = preload("scenes/CutsceneGraphEditor.tscn").instance()
@@ -24,6 +25,7 @@ func _exit_tree():
 	remove_custom_type("Character")
 	remove_custom_type("CharacterVariant")
 	remove_custom_type("CutsceneController")
+	remove_custom_type("Cutscene")
 	get_editor_interface().get_editor_viewport().remove_child(editor)
 	if editor != null:
 		editor.free()

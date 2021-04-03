@@ -1,5 +1,7 @@
 extends Node
 
+class_name CutsceneController
+
 # Walks a CutsceneGraph resource and raises signals with the details of each
 # node.
 
@@ -33,3 +35,7 @@ func _get_variable(variable_name):
 
 func _set_variable(variable_name, scope, value):
 	pass
+
+func process_cutscene(cutscene):
+	pass
+	
