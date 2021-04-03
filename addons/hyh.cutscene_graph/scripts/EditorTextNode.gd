@@ -118,13 +118,14 @@ func _populate_variants(variants):
 func select_variant(mood):
 	var character_select = _get_character_select()
 	var variant_select = _get_variant_select()
-	# This will be used when displaying a graph initially.
-	var variants = _characters[character_select.selected].character_variants
-	if variants:
-		for index in range(0, variants.size()):
-			var v = variants[index]
-			if v == mood:
-				variant_select.select(index)
+	if character_select.selected != -1:
+		# This will be used when displaying a graph initially.
+		var variants = _characters[character_select.selected].character_variants
+		if variants:
+			for index in range(0, variants.size()):
+				var v = variants[index]
+				if v == mood:
+					variant_select.select(index)
 
 
 func _on_CharacterSelect_item_selected(ID):

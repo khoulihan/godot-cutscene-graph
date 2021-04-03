@@ -2,6 +2,7 @@ tool
 extends EditorPlugin
 
 var editor
+var editor_button
 
 func _enter_tree():
 	add_custom_type("CutsceneGraph", "Resource", preload("resources/CutsceneGraph.gd"), preload("icon_graph_node.svg"))
@@ -10,15 +11,21 @@ func _enter_tree():
 	# TODO: Need a new icon for these - should be white at the very least, like other Node-derived types
 	add_custom_type("CutsceneController", "Node", preload("scripts/CutsceneController.gd"), preload("icon_graph_node.svg"))
 	add_custom_type("Cutscene", "Node", preload("scripts/Cutscene.gd"), preload("icon_graph_node.svg"))
-	self.connect("main_screen_changed", self, "_main_screen_changed")
 	
 	editor = preload("scenes/CutsceneGraphEditor.tscn").instance()
 	editor.connect("save_requested", self, "_save_requested")
+	editor_button = add_control_to_bottom_panel(editor, get_plugin_name())
+
+
+func apply_changes():
+	if editor != null:
+		editor.perform_save()
 
 
 func _save_requested(object, path):
 	ResourceSaver.save(path, object)
 	ResourceLoader.load(path)
+
 
 func _exit_tree():
 	remove_custom_type("CutsceneGraph")
@@ -26,40 +33,44 @@ func _exit_tree():
 	remove_custom_type("CharacterVariant")
 	remove_custom_type("CutsceneController")
 	remove_custom_type("Cutscene")
-	get_editor_interface().get_editor_viewport().remove_child(editor)
+	remove_control_from_bottom_panel(editor)
 	if editor != null:
 		editor.free()
 
-func _main_screen_changed(screen_name):
-	if screen_name == get_plugin_name():
-		_add_screen()
-	else:
-		_remove_screen()
-
-func _add_screen():
-	get_editor_interface().get_editor_viewport().add_child(editor)
-
-func _remove_screen():
-	get_editor_interface().get_editor_viewport().remove_child(editor)
-
-func has_main_screen():
-	return true
 
 func get_plugin_name():
-	return "Dialogue Graph"
+	return "Cutscene Graph"
+
 
 func get_plugin_icon():
 	return preload("icon_graph_edit.svg")
 
+
 func handles(object):
-	return (object is preload("resources/CutsceneGraph.gd"))
+	return (object is preload("resources/CutsceneGraph.gd") or object is Cutscene)
+
 
 func make_visible(visible):
-	pass
+	if visible:
+		make_bottom_panel_item_visible(editor)
+
 
 func edit(object):
-	var current_resource_path = object.resource_path
-	call_deferred("_request_edit", object, current_resource_path)
+	var graph
+	if object is Cutscene:
+		graph = object.cutscene
+	else:
+		graph = object
+	if graph != null:
+		var current_resource_path = graph.resource_path
+		call_deferred("_request_edit", graph, current_resource_path)
+	else:
+		call_deferred("_request_clear")
+
 
 func _request_edit(object, current_resource_path):
 	editor.edit_graph(object, current_resource_path)
+
+
+func _request_clear():
+	editor.clear()

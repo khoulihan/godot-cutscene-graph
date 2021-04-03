@@ -37,24 +37,6 @@ class OpenGraph:
 	var zoom
 	var scroll_offset
 
-	func get_filename():
-		var name
-		if path == null:
-			name = "New Graph"
-		else:
-			name = path.get_file()
-		if dirty:
-			name += "(*)"
-		return name
-
-enum FileMenuItems {
-	FILE_NEW = 0,
-	FILE_OPEN = 1,
-	FILE_SAVE = 3,
-	FILE_SAVE_AS = 4,
-	FILE_CLOSE = 6
-}
-
 enum GraphPopupMenuItems {
 	ADD_TEXT_NODE,
 	ADD_BRANCH_NODE,
@@ -83,38 +65,35 @@ var _save_dialog
 var _open_graph_dialog
 var _open_sub_graph_dialog
 var _open_character_dialog
-onready var _graph_list = $EditorSplitter/SidebarSplitter/GraphList
-onready var _graph_edit = $EditorSplitter/GraphEdit
+onready var _graph_edit = $MarginContainer/GraphEdit
+onready var _cutscene_name = $MenuBar/CutsceneName
 onready var _graph_popup = $GraphContextMenu
 onready var _node_popup = $NodePopupMenu
 onready var _confirmation_dialog = $ConfirmationDialog
 onready var _error_dialog = $ErrorDialog
-onready var _character_list = $EditorSplitter/SidebarSplitter/CharacterListContainer/CharacterList
 
 var _last_popup_position
 var _confirmation_action
 var _node_to_remove
 var _node_for_popup
-var _characters
-var _character_to_remove
 var _sub_graph_editor_node_for_assignment
 
 
 func _init():
 	_open_graphs = Array()
-	_characters = []
 
 
 func _ready():
-	# Set up graph list
-	_graph_list.connect("item_selected", self, "_graph_selection_changed")
-
 	# Set up editor
 	_graph_edit.connect("popup_request", self, "_graph_popup_requested")
 	# TODO: Not sure how to achieve hiding the popup when the mouse is clicked elsewhere
 	# The documentation suggests it should be automatic unless measures are taken, but
 	# that does not seem to be the case
 	#_graph_edit.connect("gui_input", self, "_graph_popup_dismissed")
+	
+	# Refresh the graph when we receive input focus, in case the resource
+	# has been changed externally
+	_graph_edit.connect("focus_entered", self, "_edited_resource_changed")
 
 	# Context menu
 	_graph_popup.connect("index_pressed", self, "_graph_popup_index_pressed")
@@ -122,8 +101,6 @@ func _ready():
 
 	# Confirmation dialog
 	_confirmation_dialog.connect("confirmed", self, "_action_confirmed")
-
-	_update_file_list()
 
 	# Set up save dialog
 	_save_dialog = EditorFileDialog.new()
@@ -155,10 +132,6 @@ func _ready():
 	self.add_child(_open_character_dialog)
 	_open_character_dialog.connect("file_selected", self, "_character_file_selected_for_opening")
 
-	# Set up file menu
-	var fileMenuPopup = $MenuBar/FileMenuButton.get_popup()
-	fileMenuPopup.connect("index_pressed", self, "_file_menu_index_pressed")
-
 
 func edit_graph(object, path):
 	_update_edited_graph()
@@ -176,9 +149,11 @@ func edit_graph(object, path):
 		edited.zoom = 1.0
 		edited.scroll_offset = Vector2(0, 0)
 		_open_graphs.append(edited)
+	if _edited != null:
+		_edited.graph.disconnect("changed", self, "_edited_resource_changed")
 	_edited = edited
+	_edited.graph.connect("changed", self, "_edited_resource_changed")
 	_draw_edited_graph()
-	_update_file_list()
 
 
 func _get_resource_path():
@@ -195,7 +170,7 @@ func _get_sub_graph_open_path():
 
 func _file_selected(path):
 	_edited.path = path
-	_perform_save()
+	perform_save()
 
 
 func _graph_file_selected_for_opening(path):
@@ -220,23 +195,10 @@ func _configure_sub_graph_node(editor_node, res):
 	editor_node.sub_graph_selected(res)
 
 
-func _character_file_selected_for_opening(path):
-	var character = load(path)
-	if not character is Character:
-		_error_dialog.dialog_text = "The selected resource is not a Character."
-		_error_dialog.popup_centered()
-		return
-	for existing in _characters:
-		if existing == character:
-			return
-	_characters.append(character)
-	_update_character_list(character)
-	_set_dirty(true)
-
-
 func _graph_popup_requested(p_position):
 	if _edited:
-		_last_popup_position = (p_position / _graph_edit.zoom) + (_graph_edit.scroll_offset / _graph_edit.zoom) - (Vector2(550, 100) / _graph_edit.zoom)
+		var global_rect = get_global_rect()
+		_last_popup_position = (p_position / _graph_edit.zoom) + (_graph_edit.scroll_offset / _graph_edit.zoom) - (global_rect.position / _graph_edit.zoom)
 		_graph_popup.rect_position = p_position
 		_graph_popup.show()
 
@@ -274,7 +236,7 @@ func _graph_popup_index_pressed(index):
 	if _graph_edit.get_child_count() == 3: # TODO: magic number
 		new_editor_node.is_root = true
 	if new_editor_node.has_method("populate_characters"):
-		new_editor_node.populate_characters(_characters)
+		new_editor_node.populate_characters(_edited.graph.characters)
 	new_editor_node.configure_for_node(new_graph_node)
 	_edited.graph.nodes.append(new_graph_node)
 	if new_editor_node.is_root:
@@ -332,10 +294,6 @@ func _action_confirmed():
 			_edited.graph.nodes.erase(node.node_resource)
 			_graph_edit.remove_child(node)
 			_set_dirty(true)
-		ConfirmationActions.REMOVE_CHARACTER:
-			_characters.remove(_character_to_remove)
-			_update_character_list()
-			_set_dirty(true)
 		ConfirmationActions.CLOSE_GRAPH:
 			_close_graph()
 
@@ -346,24 +304,10 @@ func _graph_selection_changed(index):
 	_draw_edited_graph()
 
 
-func _file_menu_index_pressed(index):
-	match index:
-		FileMenuItems.FILE_NEW:
-			_on_new()
-		FileMenuItems.FILE_OPEN:
-			_on_open()
-		FileMenuItems.FILE_SAVE:
-			_on_save()
-		FileMenuItems.FILE_SAVE_AS:
-			_on_save_as()
-		FileMenuItems.FILE_CLOSE:
-			_on_close()
-
-
 func _on_save():
 	if _edited:
 		if _edited.path != null:
-			_perform_save()
+			perform_save()
 		else:
 			_get_resource_path()
 
@@ -397,11 +341,10 @@ func _close_graph():
 		_edited = _open_graphs[0]
 	else:
 		_edited = null
-	_update_file_list()
 	_draw_edited_graph()
 
 
-func _perform_save():
+func perform_save():
 	_update_edited_graph()
 	emit_signal("save_requested", _edited.graph, _edited.path)
 	_set_dirty(false)
@@ -419,17 +362,14 @@ func _draw_edited_graph():
 	_clear_displayed_graph()
 
 	if _edited != null:
-		# Add the characters from the edited graph
-		for character in _edited.graph.characters:
-			_characters.append(character)
-		_update_character_list()
+		_cutscene_name.text = _get_name(_edited.graph)
 
 		# Now create and configure the display nodes
 		for node in _edited.graph.nodes:
 			var editor_node
 			if node is DialogueTextNode:
 				editor_node = EditorTextNode.instance()
-				editor_node.populate_characters(_characters)
+				editor_node.populate_characters(_edited.graph.characters)
 			elif node is BranchNode:
 				editor_node = EditorBranchNode.instance()
 			elif node is VariableSetNode:
@@ -438,7 +378,7 @@ func _draw_edited_graph():
 				editor_node = EditorChoiceNode.instance()
 			elif node is ActionNode:
 				editor_node = EditorActionNode.instance()
-				editor_node.populate_characters(_characters)
+				editor_node.populate_characters(_edited.graph.characters)
 			elif node is SubGraph:
 					editor_node = EditorSubGraphNode.instance()
 			_graph_edit.add_child(editor_node)
@@ -477,7 +417,7 @@ func _connect_node_signals(node):
 
 
 func _node_modified(node):
-	_set_dirty(true)
+	perform_save()
 
 
 func _node_offset_changed(node):
@@ -486,7 +426,6 @@ func _node_offset_changed(node):
 
 func _set_dirty(val):
 	_edited.dirty = val
-	_update_file_list()
 
 
 func _get_editor_node_for_graph_node(n):
@@ -504,6 +443,10 @@ func _get_graph_node_by_id(id):
 	return null
 
 
+func clear():
+	_clear_displayed_graph()
+	_edited = null
+
 func _clear_displayed_graph():
 	_graph_edit.clear_connections()
 	var graph_nodes = _graph_edit.get_children()
@@ -511,7 +454,7 @@ func _clear_displayed_graph():
 		if node.name.match("Editor*"):
 			_graph_edit.remove_child(node)
 			node.queue_free()
-	_characters.clear()
+	_cutscene_name.text = "None"
 
 
 func _update_edited_graph():
@@ -519,9 +462,6 @@ func _update_edited_graph():
 		_edited.zoom = _graph_edit.zoom
 		_edited.scroll_offset = Vector2(_graph_edit.scroll_offset)
 
-		for character in _characters:
-			if not character in _edited.graph.characters:
-				_edited.graph.characters.append(character)
 		for node in _graph_edit.get_children():
 			# Watch out! Not all graph edit children are actually our nodes!
 			if node.has_method("persist_changes_to_node"):
@@ -545,41 +485,29 @@ func _update_edited_graph():
 					from_dialogue_node.branches[from_slot - 1] = to_dialogue_node
 
 
-func _on_new():
-	_update_edited_graph()
-	_edited = OpenGraph.new()
-	_edited.graph = CutsceneGraph.new()
-	_edited.path = null
-	_edited.dirty = true
-	_open_graphs.append(_edited)
-	_draw_edited_graph()
-	_update_file_list()
-
-
-func _update_file_list():
-	_graph_list.clear()
-	for graph in _open_graphs:
-		_graph_list.add_item(graph.get_filename())
-		if _edited.graph == graph.graph:
-			_graph_list.select(_graph_list.get_item_count() - 1)
-	_graph_list.ensure_current_is_visible()
-
-
-func _update_character_list(selection = null):
-	_character_list.clear()
-	for character in _characters:
-		_character_list.add_item(character.character_display_name)
-		if character == selection:
-			_character_list.select(_character_list.get_item_count() - 1)
-	_character_list.ensure_current_is_visible()
-	_update_node_characters()
-
-
 func _update_node_characters():
 	print ("Updating node characters")
 	for node in _graph_edit.get_children():
 		if node.has_method("populate_characters"):
-			node.populate_characters(_characters)
+			node.populate_characters(_edited.graph.characters)
+
+
+func _get_name(graph):
+	var display_name = graph.display_name
+	var name = graph.name
+	if name == null or name == "":
+		name = "unnamed"
+	if display_name == null or display_name == "":
+		display_name = "Unnamed Cutscene"
+	return "%s (%s)" % [display_name, name]
+
+
+func _edited_resource_changed():
+	_update_node_characters()
+	if _edited != null:
+		_cutscene_name.text = _get_name(_edited.graph)
+	else:
+		_cutscene_name.text = "None"
 
 
 func _on_GraphEdit_connection_request(from, from_slot, to, to_slot):
@@ -600,16 +528,3 @@ func _on_GraphEdit_disconnection_request(from, from_slot, to, to_slot):
 	_graph_edit.disconnect_node(from, from_slot, to, to_slot)
 	_set_dirty(true)
 
-
-func _on_AddCharacterButton_pressed():
-	if _edited:
-		_open_character_dialog.popup_centered_minsize(Vector2(800, 700))
-
-
-func _on_RemoveCharacterButton_pressed():
-	var selected = _character_list.get_selected_items()
-	if selected.size() > 0:
-		_character_to_remove = selected[0]
-		_confirmation_action = ConfirmationActions.REMOVE_CHARACTER
-		_confirmation_dialog.dialog_text = "Are you sure want to remove this character? Any nodes using it will switch to a different character."
-		_confirmation_dialog.popup_centered()

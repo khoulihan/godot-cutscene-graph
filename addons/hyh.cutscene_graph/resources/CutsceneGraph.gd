@@ -1,9 +1,12 @@
 tool
 extends Resource
 
+export (String) var name
+export (String) var display_name
 export (Array) var nodes
 export (Resource) var root_node
-export (Array) var characters
+export (Array, Resource) var characters
+export (String, MULTILINE) var notes
 
 func _init():
 	self.nodes = []
