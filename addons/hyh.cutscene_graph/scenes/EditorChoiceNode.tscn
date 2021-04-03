@@ -44,9 +44,15 @@ margin_left = 10.0
 margin_top = 10.0
 margin_right = 389.0
 margin_bottom = 34.0
-alignment = 2
 
-[node name="AddValueButton" type="ToolButton" parent="HeaderContainer/HorizontalLayout" index="0"]
+[node name="Label" type="Label" parent="HeaderContainer/HorizontalLayout" index="0"]
+margin_top = 5.0
+margin_right = 347.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "Default"
+
+[node name="AddValueButton" type="ToolButton" parent="HeaderContainer/HorizontalLayout" index="1"]
 margin_left = 351.0
 margin_right = 379.0
 margin_bottom = 24.0
@@ -57,13 +63,13 @@ icon = ExtResource( 1 )
 margin_left = 16.0
 margin_top = 69.0
 margin_right = 415.0
-margin_bottom = 171.0
+margin_bottom = 181.0
 
 [node name="ChoiceValue2" parent="." index="2" instance=ExtResource( 3 )]
 margin_left = 16.0
-margin_top = 172.0
+margin_top = 182.0
 margin_right = 415.0
-margin_bottom = 274.0
+margin_bottom = 294.0
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]
 [connection signal="pressed" from="HeaderContainer/HorizontalLayout/AddValueButton" to="." method="_on_AddValueButton_pressed"]
 [connection signal="remove_requested" from="ChoiceValue" to="." method="_value_remove_requested" binds= [ 1 ]]
