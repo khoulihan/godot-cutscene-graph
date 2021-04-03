@@ -13,6 +13,7 @@ const DialogueChoiceNode = preload("../resources/DialogueChoiceNode.gd")
 const VariableSetNode = preload("../resources/VariableSetNode.gd")
 const ActionNode = preload("../resources/ActionNode.gd")
 const SubGraph = preload("../resources/SubGraph.gd")
+const RandomNode = preload("../resources/RandomNode.gd")
 
 const EditorTextNodeClass = preload("./EditorTextNode.gd")
 const EditorBranchNodeClass = preload("./EditorBranchNode.gd")
@@ -21,6 +22,7 @@ const EditorSetNodeClass = preload("./EditorSetNode.gd")
 const EditorGraphNodeBaseClass = preload("./EditorGraphNodeBase.gd")
 const EditorActionNodeClass = preload("./EditorActionNode.gd")
 const EditorSubGraphNodeClass = preload("./EditorSubGraphNode.gd")
+const EditorRandomNodeClass = preload("./EditorRandomNode.gd")
 
 const EditorTextNode = preload("../scenes/EditorTextNode.tscn")
 const EditorBranchNode = preload("../scenes/EditorBranchNode.tscn")
@@ -29,6 +31,7 @@ const EditorSetNode = preload("../scenes/EditorSetNode.tscn")
 const EditorGraphNodeBase = preload("../scenes/EditorGraphNodeBase.tscn")
 const EditorActionNode = preload("../scenes/EditorActionNode.tscn")
 const EditorSubGraphNode = preload("../scenes/EditorSubGraphNode.tscn")
+const EditorRandomNode = preload("../scenes/EditorRandomNode.tscn")
 
 class OpenGraph:
 	var graph
@@ -43,7 +46,8 @@ enum GraphPopupMenuItems {
 	ADD_CHOICE_NODE,
 	ADD_SET_NODE,
 	ADD_ACTION_NODE,
-	ADD_SUB_GRAPH_NODE
+	ADD_SUB_GRAPH_NODE,
+	ADD_RANDOM_NODE
 }
 
 enum NodePopupMenuItems {
@@ -231,6 +235,9 @@ func _graph_popup_index_pressed(index):
 		GraphPopupMenuItems.ADD_SUB_GRAPH_NODE:
 			new_editor_node = EditorSubGraphNode.instance()
 			new_graph_node = SubGraph.new()
+		GraphPopupMenuItems.ADD_RANDOM_NODE:
+			new_editor_node = EditorRandomNode.instance()
+			new_graph_node = RandomNode.new()
 	new_graph_node.offset = _last_popup_position
 	_graph_edit.add_child(new_editor_node)
 	if _graph_edit.get_child_count() == 3: # TODO: magic number
@@ -380,7 +387,9 @@ func _draw_edited_graph():
 				editor_node = EditorActionNode.instance()
 				editor_node.populate_characters(_edited.graph.characters)
 			elif node is SubGraph:
-					editor_node = EditorSubGraphNode.instance()
+				editor_node = EditorSubGraphNode.instance()
+			elif node is RandomNode:
+				editor_node = EditorRandomNode.instance()
 			_graph_edit.add_child(editor_node)
 			editor_node.configure_for_node(node)
 			if node == _edited.graph.root_node:
@@ -393,7 +402,7 @@ func _draw_edited_graph():
 				var from = _get_editor_node_for_graph_node(node)
 				var to = _get_editor_node_for_graph_node(node.next)
 				_graph_edit.connect_node(from.name, 0, to.name, 0)
-			if node is DialogueChoiceNode or node is BranchNode:
+			if node is DialogueChoiceNode or node is BranchNode or node is RandomNode:
 				var from = _get_editor_node_for_graph_node(node)
 				for index in range(0, node.branches.size()):
 					if node.branches[index]:
@@ -478,7 +487,7 @@ func _update_edited_graph():
 			var to_dialogue_node = to.node_resource
 			if from_dialogue_node is DialogueTextNode or from_dialogue_node is VariableSetNode or from_dialogue_node is ActionNode or from_dialogue_node is SubGraph:
 				from_dialogue_node.next = to_dialogue_node
-			elif from_dialogue_node is DialogueChoiceNode or from_dialogue_node is BranchNode:
+			elif from_dialogue_node is DialogueChoiceNode or from_dialogue_node is BranchNode or from_dialogue_node is RandomNode:
 				if from_slot == 0:
 					from_dialogue_node.next = to_dialogue_node
 				else:
