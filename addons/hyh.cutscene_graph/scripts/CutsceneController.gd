@@ -169,16 +169,26 @@ func _process_dialogue_node():
 	if text == null:
 		text = _current_node.text
 	
-	# TODO: Make this splitting optional
-	var lines = text.split("\n")
-	for line in lines:
-		# Just in case there are blank lines
-		if line == "":
-			continue
+	if _current_graph.split_dialogue:
+		var lines = text.split("\n")
+		for line in lines:
+			# Just in case there are blank lines
+			if line == "":
+				continue
+			var process = _await_response()
+			call_deferred(
+				"_emit_dialogue_signal",
+				line,
+				_current_node.character.character_name,
+				_current_node.character_variant.variant_name,
+				process
+			)
+			yield(process, "completed")
+	else:
 		var process = _await_response()
 		call_deferred(
 			"_emit_dialogue_signal",
-			line,
+			text,
 			_current_node.character.character_name,
 			_current_node.character_variant.variant_name,
 			process
