@@ -198,9 +198,7 @@ func _process_dialogue_node():
 	
 
 func _process_branch_node():
-	# Since branch nodes currently can't specify a scope, we just need to use
-	# the "closest" matching variable
-	var val = _get_first_variable(_current_node.variable)
+	var val = _get_variable(_current_node.variable, _current_node.scope)
 	for i in range(len(_current_node.values)):
 		if val == _current_node.values[i]:
 			_current_node = _current_node.branches[i]

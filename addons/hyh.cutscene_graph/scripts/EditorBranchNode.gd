@@ -4,13 +4,16 @@ extends "EditorGraphNodeBase.gd"
 var _branch_value_scene = preload("../scenes/BranchValue.tscn")
 
 
+onready var VariableEdit = get_node("MarginContainer/VBoxContainer/HeaderContainer/GridContainer/VariableEdit")
+onready var ScopeSelect = get_node("MarginContainer/VBoxContainer/HeaderContainer/GridContainer/ScopeSelect")
+
+
 func get_variable():
-	return $MarginContainer/HeaderContainer/VariableEdit.text
+	return VariableEdit.text
 
 
 func set_variable(val):
-	var variable_edit = get_node("MarginContainer/HeaderContainer/VariableEdit")
-	variable_edit.text = val
+	VariableEdit.text = val
 
 
 func get_values():
@@ -24,6 +27,14 @@ func set_values(values):
 	clear_branches()
 	for index in range(0, values.size()):
 		_add_branch(values[index])
+
+
+func get_scope():
+	return ScopeSelect.selected
+
+
+func set_scope(val):
+	ScopeSelect.select(val)
 
 
 func _add_branch(value):
@@ -57,12 +68,14 @@ func _create_branch():
 func configure_for_node(n):
 	.configure_for_node(n)
 	set_variable(n.variable)
+	set_scope(n.scope)
 	set_values(n.values)
 
 
 func persist_changes_to_node():
 	.persist_changes_to_node()
 	node_resource.variable = get_variable()
+	node_resource.scope = get_scope()
 	node_resource.values = get_values()
 
 
@@ -98,3 +111,10 @@ func reconnect_signals():
 func _on_gui_input(ev):
 	._on_gui_input(ev)
 
+
+func _on_ScopeSelect_item_selected(index):
+	emit_signal("modified")
+
+
+func _on_VariableEdit_text_changed(new_text):
+	emit_signal("modified")
