@@ -15,6 +15,8 @@ const RandomNode = preload("../resources/RandomNode.gd")
 # node.
 
 signal cutscene_started(cutscene_name, graph_type)
+signal sub_graph_entered(cutscene_name, graph_type)
+signal cutscene_resumed(cutscene_name, graph_type)
 signal cutscene_completed()
 signal dialogue_display_requested(
 	text,
@@ -32,13 +34,19 @@ signal action_requested(
 signal choice_display_requested(choices, process)
 
 
+class GraphState:
+	var graph
+	var current_node
+
+
 export(NodePath) var global_store
 export(NodePath) var scene_store
 var _local_store : Dictionary
 var _global_store : Node
 var _scene_store : Node
 
-var _graph
+var _graph_stack
+var _current_graph
 var _current_node
 
 
@@ -96,10 +104,11 @@ func _await_response():
 
 
 func process_cutscene(cutscene):
+	_graph_stack = []
 	_local_store = {}
-	_graph = cutscene
-	_current_node = _graph.root_node
-	emit_signal("cutscene_started", _graph.name, _graph.graph_type)
+	_current_graph = cutscene
+	_current_node = _current_graph.root_node
+	emit_signal("cutscene_started", _current_graph.name, _current_graph.graph_type)
 	while _current_node != null:
 		print("Processing")
 		if _current_node is DialogueTextNode:
@@ -118,6 +127,18 @@ func process_cutscene(cutscene):
 			_process_subgraph_node()
 		elif _current_node is RandomNode:
 			_process_random_node()
+		
+		if _current_node == null:
+			if len(_graph_stack) > 0:
+				var graph_state = _graph_stack.pop_back()
+				_current_graph = graph_state.graph
+				_current_node = graph_state.current_node.next
+				emit_signal(
+					"cutscene_resumed",
+					_current_graph.name,
+					_current_graph.graph_type
+				)
+	
 	emit_signal("cutscene_completed")
 
 
@@ -211,7 +232,6 @@ func _process_choice_node():
 				text = _current_node.display[i]
 			choices[i] = text
 	if !choices.empty():
-		print ("Choices: %s" % len(choices))
 		var process = _await_response()
 		call_deferred(
 			"_emit_choices_signal",
@@ -266,8 +286,13 @@ func _process_action_node():
 
 
 func _process_subgraph_node():
-	# TODO: I think we need to create a "graph stack" to support subgraphs
-	pass
+	var graph_state = GraphState.new()
+	graph_state.graph = _current_graph
+	graph_state.current_node = _current_node
+	_graph_stack.push_back(graph_state)
+	_current_graph = _current_node.sub_graph
+	_current_node = _current_graph.root_node
+	emit_signal("sub_graph_entered", _current_graph.name, _current_graph.graph_type)
 
 
 func _process_random_node():

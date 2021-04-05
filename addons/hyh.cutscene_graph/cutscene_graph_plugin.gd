@@ -69,7 +69,8 @@ func edit(object):
 
 
 func _request_edit(object, current_resource_path):
-	editor.edit_graph(object, current_resource_path)
+	if editor != null:
+		editor.edit_graph(object, current_resource_path)
 
 
 func _request_clear():
