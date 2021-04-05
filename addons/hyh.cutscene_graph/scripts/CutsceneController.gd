@@ -70,7 +70,7 @@ func _get_variable(variable_name, scope):
 	match scope:
 		VariableSetNode.VariableScope.SCOPE_DIALOGUE:
 			# We can deal with these internally for the duration of a cutscene
-			return _local_store[variable_name]
+			return _local_store.get(variable_name)
 		VariableSetNode.VariableScope.SCOPE_SCENE:
 			return _scene_store.get_variable(variable_name)
 		VariableSetNode.VariableScope.SCOPE_GLOBAL:
@@ -78,6 +78,7 @@ func _get_variable(variable_name, scope):
 	return null
 
 
+# This shouldn't really be required anymore
 func _get_first_variable(variable_name):
 	if variable_name in _local_store:
 		return _local_store[variable_name]
@@ -224,7 +225,7 @@ func _process_choice_node():
 		var valid = true
 		var variable = _current_node.variables[i]
 		if variable != null and variable != "":
-			var val = _get_first_variable(variable)
+			var val = _get_variable(variable, _current_node.scopes[i])
 			var expected_val = _current_node.values[i]
 			valid = val == expected_val
 		if valid:
@@ -311,7 +312,7 @@ func _process_random_node():
 			viable.append(_current_node.branches[i])
 		else:
 			var val = _current_node.values[i]
-			var stored = _get_first_variable(variable)
+			var stored = _get_variable(variable, _current_node.scopes[i])
 			if val == stored:
 				viable.append(_current_node.branches[i])
 	if len(viable) == 0:

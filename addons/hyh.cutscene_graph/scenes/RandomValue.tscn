@@ -5,7 +5,7 @@
 
 [node name="RandomValue" type="MarginContainer"]
 margin_right = 324.0
-margin_bottom = 44.0
+margin_bottom = 72.0
 custom_constants/margin_right = 10
 custom_constants/margin_top = 10
 custom_constants/margin_left = 10
@@ -15,42 +15,75 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="VariableContainer" type="HBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
 margin_left = 10.0
 margin_top = 10.0
 margin_right = 314.0
-margin_bottom = 34.0
+margin_bottom = 112.0
+custom_constants/separation = 10
 
-[node name="Label" type="Label" parent="VariableContainer"]
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+margin_right = 304.0
+margin_bottom = 4.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+margin_top = 14.0
+margin_right = 304.0
+margin_bottom = 102.0
+
+[node name="VariableContainer" type="GridContainer" parent="VBoxContainer/HBoxContainer"]
+margin_right = 272.0
+margin_bottom = 88.0
+size_flags_horizontal = 3
+custom_constants/vseparation = 10
+columns = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/VariableContainer"]
 margin_top = 5.0
 margin_right = 55.0
 margin_bottom = 19.0
 text = "Variable:"
 
-[node name="VariableEdit" type="LineEdit" parent="VariableContainer"]
+[node name="VariableEdit" type="LineEdit" parent="VBoxContainer/HBoxContainer/VariableContainer"]
 margin_left = 59.0
-margin_right = 142.0
-margin_bottom = 24.0
-size_flags_horizontal = 3
-
-[node name="Label2" type="Label" parent="VariableContainer"]
-margin_left = 146.0
-margin_top = 5.0
-margin_right = 185.0
-margin_bottom = 19.0
-text = "Value:"
-
-[node name="ValueEdit" type="LineEdit" parent="VariableContainer"]
-margin_left = 189.0
 margin_right = 272.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 
-[node name="RemoveButton" type="ToolButton" parent="VariableContainer"]
+[node name="Label3" type="Label" parent="VBoxContainer/HBoxContainer/VariableContainer"]
+margin_top = 37.0
+margin_right = 55.0
+margin_bottom = 51.0
+text = "Scope:"
+
+[node name="ScopeSelect" type="OptionButton" parent="VBoxContainer/HBoxContainer/VariableContainer"]
+margin_left = 59.0
+margin_top = 34.0
+margin_right = 272.0
+margin_bottom = 54.0
+text = "Dialogue"
+items = [ "Dialogue", null, false, 0, null, "Scene", null, false, 1, null, "Global", null, false, 2, null ]
+selected = 0
+
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/VariableContainer"]
+margin_top = 69.0
+margin_right = 55.0
+margin_bottom = 83.0
+text = "Value:"
+
+[node name="ValueEdit" type="LineEdit" parent="VBoxContainer/HBoxContainer/VariableContainer"]
+margin_left = 59.0
+margin_top = 64.0
+margin_right = 272.0
+margin_bottom = 88.0
+size_flags_horizontal = 3
+
+[node name="RemoveButton" type="ToolButton" parent="VBoxContainer/HBoxContainer"]
 margin_left = 276.0
 margin_right = 304.0
-margin_bottom = 24.0
+margin_bottom = 88.0
 icon = ExtResource( 2 )
-[connection signal="text_changed" from="VariableContainer/VariableEdit" to="." method="_on_VariableEdit_text_changed"]
-[connection signal="text_changed" from="VariableContainer/ValueEdit" to="." method="_on_ValueEdit_text_changed"]
-[connection signal="pressed" from="VariableContainer/RemoveButton" to="." method="_on_RemoveButton_pressed"]
+[connection signal="text_changed" from="VBoxContainer/HBoxContainer/VariableContainer/VariableEdit" to="." method="_on_VariableEdit_text_changed"]
+[connection signal="item_selected" from="VBoxContainer/HBoxContainer/VariableContainer/ScopeSelect" to="." method="_on_ScopeSelect_item_selected"]
+[connection signal="text_changed" from="VBoxContainer/HBoxContainer/VariableContainer/ValueEdit" to="." method="_on_ValueEdit_text_changed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/RemoveButton" to="." method="_on_RemoveButton_pressed"]

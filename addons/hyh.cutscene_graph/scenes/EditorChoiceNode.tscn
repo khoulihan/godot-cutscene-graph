@@ -63,13 +63,13 @@ icon = ExtResource( 1 )
 margin_left = 16.0
 margin_top = 69.0
 margin_right = 415.0
-margin_bottom = 181.0
+margin_bottom = 259.0
 
 [node name="ChoiceValue2" parent="." index="2" instance=ExtResource( 3 )]
 margin_left = 16.0
-margin_top = 182.0
+margin_top = 260.0
 margin_right = 415.0
-margin_bottom = 294.0
+margin_bottom = 450.0
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]
 [connection signal="pressed" from="HeaderContainer/HorizontalLayout/AddValueButton" to="." method="_on_AddValueButton_pressed"]
 [connection signal="remove_requested" from="ChoiceValue" to="." method="_value_remove_requested" binds= [ 1 ]]

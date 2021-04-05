@@ -7,8 +7,8 @@ flags = 4
 load_path = "res://.import/icon_remove.svg-3de85dbfbac9d7fd485aba05e1ebb7cc.stex"
 
 [node name="ChoiceValue" type="MarginContainer"]
-margin_right = 260.0
-margin_bottom = 62.0
+margin_right = 306.0
+margin_bottom = 146.0
 custom_constants/margin_right = 10
 custom_constants/margin_top = 10
 custom_constants/margin_left = 10
@@ -18,83 +18,105 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="VerticalLayout" type="VBoxContainer" parent="."]
+[node name="HBoxContainer" type="VBoxContainer" parent="."]
 margin_left = 10.0
 margin_top = 10.0
-margin_right = 250.0
-margin_bottom = 102.0
+margin_right = 296.0
+margin_bottom = 180.0
 custom_constants/separation = 10
 
-[node name="DisplayContainer" type="GridContainer" parent="VerticalLayout"]
-margin_right = 240.0
-margin_bottom = 58.0
+[node name="HSeparator" type="HSeparator" parent="HBoxContainer"]
+margin_right = 286.0
+margin_bottom = 4.0
+
+[node name="VariableContainer" type="HBoxContainer" parent="HBoxContainer"]
+margin_top = 14.0
+margin_right = 286.0
+margin_bottom = 170.0
+size_flags_horizontal = 3
+custom_constants/separation = 10
+
+[node name="DisplayContainer" type="GridContainer" parent="HBoxContainer/VariableContainer"]
+margin_right = 248.0
+margin_bottom = 156.0
+size_flags_horizontal = 3
 custom_constants/vseparation = 10
 custom_constants/hseparation = 10
-columns = 3
+columns = 2
 
-[node name="Label" type="Label" parent="VerticalLayout/DisplayContainer"]
+[node name="Label" type="Label" parent="HBoxContainer/VariableContainer/DisplayContainer"]
 margin_top = 5.0
 margin_right = 101.0
 margin_bottom = 19.0
 text = "Display:"
 
-[node name="DisplayEdit" type="LineEdit" parent="VerticalLayout/DisplayContainer"]
+[node name="DisplayEdit" type="LineEdit" parent="HBoxContainer/VariableContainer/DisplayContainer"]
 margin_left = 111.0
-margin_right = 202.0
+margin_right = 248.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 
-[node name="RemoveButton" type="ToolButton" parent="VerticalLayout/DisplayContainer"]
-margin_left = 212.0
-margin_right = 240.0
-margin_bottom = 24.0
-icon = SubResource( 1 )
-
-[node name="Label2" type="Label" parent="VerticalLayout/DisplayContainer"]
+[node name="Label2" type="Label" parent="HBoxContainer/VariableContainer/DisplayContainer"]
 margin_top = 39.0
 margin_right = 101.0
 margin_bottom = 53.0
 text = "Translation Key:"
 
-[node name="TranslationKeyEdit" type="LineEdit" parent="VerticalLayout/DisplayContainer"]
+[node name="TranslationKeyEdit" type="LineEdit" parent="HBoxContainer/VariableContainer/DisplayContainer"]
 margin_left = 111.0
 margin_top = 34.0
-margin_right = 202.0
+margin_right = 248.0
 margin_bottom = 58.0
 
-[node name="VariableContainer" type="HBoxContainer" parent="VerticalLayout"]
-margin_top = 68.0
-margin_right = 240.0
-margin_bottom = 92.0
-size_flags_horizontal = 3
-custom_constants/separation = 10
-
-[node name="Label" type="Label" parent="VerticalLayout/VariableContainer"]
-margin_top = 5.0
-margin_right = 55.0
-margin_bottom = 19.0
+[node name="Label3" type="Label" parent="HBoxContainer/VariableContainer/DisplayContainer"]
+margin_top = 73.0
+margin_right = 101.0
+margin_bottom = 87.0
 text = "Variable:"
 
-[node name="VariableEdit" type="LineEdit" parent="VerticalLayout/VariableContainer"]
-margin_left = 65.0
-margin_right = 123.0
-margin_bottom = 24.0
+[node name="VariableEdit" type="LineEdit" parent="HBoxContainer/VariableContainer/DisplayContainer"]
+margin_left = 111.0
+margin_top = 68.0
+margin_right = 248.0
+margin_bottom = 92.0
 size_flags_horizontal = 3
 
-[node name="Label2" type="Label" parent="VerticalLayout/VariableContainer"]
-margin_left = 133.0
-margin_top = 5.0
-margin_right = 172.0
-margin_bottom = 19.0
+[node name="Label5" type="Label" parent="HBoxContainer/VariableContainer/DisplayContainer"]
+margin_top = 105.0
+margin_right = 101.0
+margin_bottom = 119.0
+text = "Scope:"
+
+[node name="ScopeSelect" type="OptionButton" parent="HBoxContainer/VariableContainer/DisplayContainer"]
+margin_left = 111.0
+margin_top = 102.0
+margin_right = 248.0
+margin_bottom = 122.0
+text = "Dialogue"
+items = [ "Dialogue", null, false, 0, null, "Scene", null, false, 1, null, "Global", null, false, 2, null ]
+selected = 0
+
+[node name="Label4" type="Label" parent="HBoxContainer/VariableContainer/DisplayContainer"]
+margin_top = 137.0
+margin_right = 101.0
+margin_bottom = 151.0
 text = "Value:"
 
-[node name="ValueEdit" type="LineEdit" parent="VerticalLayout/VariableContainer"]
-margin_left = 182.0
-margin_right = 240.0
-margin_bottom = 24.0
+[node name="ValueEdit" type="LineEdit" parent="HBoxContainer/VariableContainer/DisplayContainer"]
+margin_left = 111.0
+margin_top = 132.0
+margin_right = 248.0
+margin_bottom = 156.0
 size_flags_horizontal = 3
-[connection signal="text_changed" from="VerticalLayout/DisplayContainer/DisplayEdit" to="." method="_on_DisplayEdit_text_changed"]
-[connection signal="pressed" from="VerticalLayout/DisplayContainer/RemoveButton" to="." method="_on_RemoveButton_pressed"]
-[connection signal="text_changed" from="VerticalLayout/DisplayContainer/TranslationKeyEdit" to="." method="_on_TranslationKeyEdit_text_changed"]
-[connection signal="text_changed" from="VerticalLayout/VariableContainer/VariableEdit" to="." method="_on_VariableEdit_text_changed"]
-[connection signal="text_changed" from="VerticalLayout/VariableContainer/ValueEdit" to="." method="_on_ValueEdit_text_changed"]
+
+[node name="RemoveButton" type="ToolButton" parent="HBoxContainer/VariableContainer"]
+margin_left = 258.0
+margin_right = 286.0
+margin_bottom = 156.0
+icon = SubResource( 1 )
+[connection signal="text_changed" from="HBoxContainer/VariableContainer/DisplayContainer/DisplayEdit" to="." method="_on_DisplayEdit_text_changed"]
+[connection signal="text_changed" from="HBoxContainer/VariableContainer/DisplayContainer/TranslationKeyEdit" to="." method="_on_TranslationKeyEdit_text_changed"]
+[connection signal="text_changed" from="HBoxContainer/VariableContainer/DisplayContainer/VariableEdit" to="." method="_on_VariableEdit_text_changed"]
+[connection signal="item_selected" from="HBoxContainer/VariableContainer/DisplayContainer/ScopeSelect" to="." method="_on_ScopeSelect_item_selected"]
+[connection signal="text_changed" from="HBoxContainer/VariableContainer/DisplayContainer/ValueEdit" to="." method="_on_ValueEdit_text_changed"]
+[connection signal="pressed" from="HBoxContainer/VariableContainer/RemoveButton" to="." method="_on_RemoveButton_pressed"]

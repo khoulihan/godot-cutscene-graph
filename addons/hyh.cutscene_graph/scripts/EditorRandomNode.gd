@@ -18,15 +18,22 @@ func get_values():
 	return values
 
 
-func set_branches(variables, values):
+func get_scopes():
+	var scopes = []
+	for index in range(1, get_child_count()):
+		scopes.append(get_child(index).get_scope())
+	return scopes
+
+
+func set_branches(variables, scopes, values):
 	clear_branches()
 	for index in range(0, values.size()):
-		_add_branch(variables[index], values[index])
+		_add_branch(variables[index], scopes[index], values[index])
 
 
-func _add_branch(variable, value):
+func _add_branch(variable, scope, value):
 	var line = _create_branch()
-	line.set_random(variable, value)
+	line.set_random(variable, scope, value)
 
 
 func clear_branches():
@@ -54,13 +61,14 @@ func _create_branch():
 
 func configure_for_node(n):
 	.configure_for_node(n)
-	set_branches(n.variables, n.values)
+	set_branches(n.variables, n.scopes, n.values)
 
 
 func persist_changes_to_node():
 	.persist_changes_to_node()
 	node_resource.variables = get_variables()
 	node_resource.values = get_values()
+	node_resource.scopes = get_scopes()
 
 
 func clear_node_relationships():
@@ -77,6 +85,7 @@ func _on_AddBranchButton_pressed():
 
 func _value_remove_requested(index):
 	remove_branch(index)
+	emit_signal("modified")
 
 
 func _value_modified(index):

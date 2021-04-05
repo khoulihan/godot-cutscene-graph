@@ -65,13 +65,13 @@ icon = ExtResource( 2 )
 margin_left = 16.0
 margin_top = 69.0
 margin_right = 484.0
-margin_bottom = 113.0
+margin_bottom = 191.0
 
 [node name="RandomValue2" parent="." instance=ExtResource( 3 )]
 margin_left = 16.0
-margin_top = 114.0
+margin_top = 192.0
 margin_right = 484.0
-margin_bottom = 158.0
+margin_bottom = 314.0
 [connection signal="pressed" from="MarginContainer/HBoxContainer/AddBranchButton" to="." method="_on_AddBranchButton_pressed"]
 [connection signal="modified" from="RandomValue" to="." method="_value_modified" binds= [ 1 ]]
 [connection signal="remove_requested" from="RandomValue" to="." method="_value_remove_requested" binds= [ 1 ]]

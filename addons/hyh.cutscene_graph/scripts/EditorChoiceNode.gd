@@ -32,6 +32,13 @@ func get_translation_keys():
 	return keys
 
 
+func get_scopes():
+	var scopes = []
+	for index in range(1, get_child_count()):
+		scopes.append(get_child(index).get_scope())
+	return scopes
+
+
 func clear_choices():
 	for index in range(get_child_count() - 1, 0, -1):
 		remove_choice(index)
@@ -45,15 +52,21 @@ func remove_choice(index):
 	reconnect_removal_signals()
 
 
-func set_choices(variables, values, display_texts, translation_keys):
+func set_choices(variables, scopes, values, display_texts, translation_keys):
 	clear_choices()
 	for index in range(0, display_texts.size()):
-		_add_choice(variables[index], values[index], display_texts[index], translation_keys[index])
+		_add_choice(
+			variables[index],
+			scopes[index],
+			values[index],
+			display_texts[index],
+			translation_keys[index]
+		)
 
 
-func _add_choice(variable, value, display, translation_key):
+func _add_choice(variable, scope, value, display, translation_key):
 	var line = _create_line()
-	line.set_choice(variable, value, display, translation_key)
+	line.set_choice(variable, scope, value, display, translation_key)
 
 
 func _create_line():
@@ -67,7 +80,13 @@ func _create_line():
 
 func configure_for_node(n):
 	.configure_for_node(n)
-	set_choices(n.variables, n.values, n.display, n.display_translation_keys)
+	set_choices(
+		n.variables,
+		n.scopes,
+		n.values,
+		n.display,
+		n.display_translation_keys
+	)
 
 
 func persist_changes_to_node():
@@ -76,6 +95,7 @@ func persist_changes_to_node():
 	node_resource.values = get_values()
 	node_resource.display = get_display_texts()
 	node_resource.display_translation_keys = get_translation_keys()
+	node_resource.scopes = get_scopes()
 
 
 func clear_node_relationships():
