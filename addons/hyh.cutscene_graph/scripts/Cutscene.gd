@@ -8,12 +8,14 @@ export(Resource) var cutscene
 
 var _cutscene_controller
 
+
 func _ready():
 	# Need to find the CutsceneController - there should only be one
 	# Do this by walking the tree from the root. This should find it whether
 	# it is an autoload or part of the scene.
 	var root = get_tree().root
 	_cutscene_controller = _find_controller(root)
+
 
 func _find_controller(root):
 	if root is CutsceneController:
@@ -28,6 +30,7 @@ func _find_controller(root):
 		if result != null:
 			return result
 	return null
+
 
 func trigger():
 	emit_signal("cutscene_triggered", self.cutscene)
