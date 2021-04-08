@@ -142,7 +142,7 @@ func edit_graph(object, path):
 	var edited
 	print ("Attempting to edit path " + path)
 	for graph in _open_graphs:
-		if graph.path == path:
+		if graph.graph == object:
 			edited = graph
 			break
 	if edited == null:
@@ -410,8 +410,11 @@ func _draw_edited_graph():
 						_graph_edit.connect_node(from.name, index + 1, to.name, 0)
 		
 		if _edited.scroll_offset != null:
-			_graph_edit.set_deferred("scroll_offset", _edited.scroll_offset)
 			_graph_edit.zoom = _edited.zoom
+			# This was a deferred set previously, not sure why. It didn't seem
+			# like it was actually being called.
+			#_graph_edit.set_deferred("scroll_offset", _edited.scroll_offset)
+			_graph_edit.scroll_offset = _edited.scroll_offset
 
 
 func _connect_node_signals(node):
