@@ -352,6 +352,7 @@ func _close_graph():
 
 
 func perform_save():
+	print ("perform_save()")
 	_update_edited_graph()
 	emit_signal("save_requested", _edited.graph, _edited.path)
 	_set_dirty(false)
@@ -363,8 +364,9 @@ func _on_save_as():
 
 
 func _draw_edited_graph():
-	print ("Drawing edited graph")
-
+	"""
+	Updated the UI to reflect changes in the underlying graph resource
+	"""
 	# Clear the existing graph
 	_clear_displayed_graph()
 
@@ -470,7 +472,11 @@ func _clear_displayed_graph():
 
 
 func _update_edited_graph():
+	"""
+	Update the graph resources from the current state of the UI.
+	"""
 	if _edited != null:
+		print ("_update_edited_graph(): %s" % _edited.graph.name)
 		_edited.zoom = _graph_edit.zoom
 		_edited.scroll_offset = Vector2(_graph_edit.scroll_offset)
 

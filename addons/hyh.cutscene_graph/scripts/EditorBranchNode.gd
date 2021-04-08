@@ -68,7 +68,6 @@ func _add_branch(value):
 func clear_branches():
 	for index in range(get_child_count() - 1, 0, -1):
 		remove_branch(index)
-	node_resource.branch_count = 0
 
 
 func remove_branch(index):
