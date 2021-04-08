@@ -1,0 +1,36 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/hyh.cutscene_graph/scripts/VariableValueEdit.gd" type="Script" id=1]
+
+[node name="VariableValueEdit" type="MarginContainer"]
+anchor_right = 0.057
+anchor_bottom = 0.067
+margin_right = -0.368004
+margin_bottom = -0.200001
+size_flags_horizontal = 3
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LineEdit" type="LineEdit" parent="."]
+visible = false
+margin_right = 58.0
+margin_bottom = 40.0
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="SpinBox" type="SpinBox" parent="."]
+visible = false
+margin_right = 74.0
+margin_bottom = 40.0
+allow_greater = true
+allow_lesser = true
+
+[node name="CheckBox" type="CheckBox" parent="."]
+margin_right = 57.0
+margin_bottom = 40.0
+[connection signal="text_changed" from="LineEdit" to="." method="_on_LineEdit_text_changed"]
+[connection signal="changed" from="SpinBox" to="." method="_on_SpinBox_changed"]
+[connection signal="value_changed" from="SpinBox" to="." method="_on_SpinBox_value_changed"]
+[connection signal="pressed" from="CheckBox" to="." method="_on_CheckBox_pressed"]

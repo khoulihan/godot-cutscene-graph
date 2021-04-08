@@ -200,8 +200,8 @@ func _process_dialogue_node():
 
 func _process_branch_node():
 	var val = _get_variable(_current_node.variable, _current_node.scope)
-	for i in range(len(_current_node.values)):
-		if val == _current_node.values[i]:
+	for i in range(_current_node.branch_count):
+		if val == _current_node.get_value(i):
 			_current_node = _current_node.branches[i]
 			return
 	# Default case, no match or no branches
@@ -226,8 +226,8 @@ func _process_choice_node():
 		var variable = _current_node.variables[i]
 		if variable != null and variable != "":
 			var val = _get_variable(variable, _current_node.scopes[i])
-			var expected_val = _current_node.values[i]
-			valid = val == expected_val
+			var expected_val = _current_node.get_value(i)
+			valid = (val == expected_val)
 		if valid:
 			var text = null
 			# Try the translation first
@@ -257,7 +257,7 @@ func _process_set_node():
 	_set_variable(
 		_current_node.variable,
 		_current_node.scope,
-		_current_node.value
+		_current_node.get_value()
 	)
 	_current_node = _current_node.next
 
@@ -311,7 +311,7 @@ func _process_random_node():
 		if variable == null or variable == "":
 			viable.append(_current_node.branches[i])
 		else:
-			var val = _current_node.values[i]
+			var val = _current_node.get_value(i)
 			var stored = _get_variable(variable, _current_node.scopes[i])
 			if val == stored:
 				viable.append(_current_node.branches[i])

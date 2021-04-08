@@ -11,6 +11,13 @@ func get_variables():
 	return variables
 
 
+func get_types():
+	var var_types = []
+	for index in range(1, get_child_count()):
+		var_types.append(get_child(index).get_type())
+	return var_types
+
+
 func get_values():
 	var values = []
 	for index in range(1, get_child_count()):
@@ -25,15 +32,25 @@ func get_scopes():
 	return scopes
 
 
-func set_branches(variables, scopes, values):
+func set_branches(variables, variable_types, scopes, values):
 	clear_branches()
 	for index in range(0, values.size()):
-		_add_branch(variables[index], scopes[index], values[index])
+		_add_branch(
+			variables[index],
+			variable_types[index],
+			scopes[index],
+			values[index]
+		)
 
 
-func _add_branch(variable, scope, value):
+func _add_branch(variable, variable_type, scope, value):
 	var line = _create_branch()
-	line.set_random(variable, scope, value)
+	line.set_random(
+		variable,
+		variable_type,
+		scope,
+		value
+	)
 
 
 func clear_branches():
@@ -61,20 +78,21 @@ func _create_branch():
 
 func configure_for_node(n):
 	.configure_for_node(n)
-	set_branches(n.variables, n.scopes, n.values)
+	set_branches(n.variables, n.variable_types, n.scopes, n.get_values())
 
 
 func persist_changes_to_node():
 	.persist_changes_to_node()
 	node_resource.variables = get_variables()
-	node_resource.values = get_values()
+	node_resource.variable_types = get_types()
+	node_resource.set_values(get_values())
 	node_resource.scopes = get_scopes()
 
 
 func clear_node_relationships():
 	.clear_node_relationships()
 	node_resource.branches = []
-	for index in range(0, node_resource.values.size()):
+	for index in range(0, node_resource.variables.size()):
 		node_resource.branches.append(null)
 
 

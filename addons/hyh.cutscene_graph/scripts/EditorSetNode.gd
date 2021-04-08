@@ -2,42 +2,59 @@ tool
 extends "EditorGraphNodeBase.gd"
 
 
+onready var VariableEdit = get_node("MarginContainer/GridContainer/VariableEdit")
+onready var ValueEdit = get_node("MarginContainer/GridContainer/ValueEdit")
+onready var ScopeSelect = get_node("MarginContainer/GridContainer/ScopeSelect")
+onready var TypeSelect = get_node("MarginContainer/GridContainer/TypeSelect")
+
+
 func configure_for_node(n):
 	.configure_for_node(n)
 	set_variable(n.variable)
-	set_value(n.value)
+	set_type(n.variable_type)
+	set_value(n.get_value())
 	set_scope(n.scope)
 
 
 func persist_changes_to_node():
 	.persist_changes_to_node()
 	node_resource.variable = get_variable()
-	node_resource.value = get_value()
+	node_resource.variable_type = get_type()
+	node_resource.set_value(get_value())
 	node_resource.scope = get_scope()
 
 
 func get_variable():
-	return $MarginContainer/GridContainer/VariableEdit.text
+	return VariableEdit.text
 
 
 func set_variable(val):
-	$MarginContainer/GridContainer/VariableEdit.text = val
+	VariableEdit.text = val
 
 
 func get_value():
-	return $MarginContainer/GridContainer/ValueEdit.text
+	return ValueEdit.get_value()
 
 
 func set_value(val):
-	$MarginContainer/GridContainer/ValueEdit.text = val
+	ValueEdit.set_value(val)
 
 
 func get_scope():
-	return $MarginContainer/GridContainer/ScopeSelect.selected
+	return ScopeSelect.get_selected_id()
 
 
 func set_scope(val):
-	$MarginContainer/GridContainer/ScopeSelect.select(val)
+	ScopeSelect.select(val)
+
+
+func get_type():
+	return TypeSelect.get_selected_id()
+
+
+func set_type(val):
+	TypeSelect.select(TypeSelect.get_item_index(val))
+	ValueEdit.set_variable_type(val)
 
 
 func _on_gui_input(ev):
@@ -52,5 +69,10 @@ func _on_VariableEdit_text_changed(new_text):
 	emit_signal("modified")
 
 
-func _on_ValueEdit_text_changed(new_text):
+func _on_ValueEdit_value_changed():
+	emit_signal("modified")
+
+
+func _on_TypeSelect_item_selected(index):
+	ValueEdit.set_variable_type(TypeSelect.get_item_id(index))
 	emit_signal("modified")

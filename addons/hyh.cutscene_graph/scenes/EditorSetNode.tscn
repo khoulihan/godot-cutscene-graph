@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://addons/hyh.cutscene_graph/scripts/EditorSetNode.gd" type="Script" id=1]
 [ext_resource path="res://addons/hyh.cutscene_graph/scenes/EditorGraphNodeBase.tscn" type="PackedScene" id=2]
+[ext_resource path="res://addons/hyh.cutscene_graph/scenes/VariableValueEdit.tscn" type="PackedScene" id=3]
 
 [node name="EditorSetNode" instance=ExtResource( 2 )]
 margin_bottom = 137.0
@@ -18,7 +19,7 @@ script = ExtResource( 1 )
 margin_left = 16.0
 margin_top = 24.0
 margin_right = 288.0
-margin_bottom = 132.0
+margin_bottom = 162.0
 custom_constants/margin_right = 10
 custom_constants/margin_top = 10
 custom_constants/margin_left = 10
@@ -28,7 +29,7 @@ custom_constants/margin_bottom = 10
 margin_left = 10.0
 margin_top = 10.0
 margin_right = 262.0
-margin_bottom = 98.0
+margin_bottom = 128.0
 custom_constants/vseparation = 10
 custom_constants/hseparation = 10
 columns = 2
@@ -61,19 +62,37 @@ margin_right = 252.0
 margin_bottom = 54.0
 size_flags_horizontal = 3
 
-[node name="Label2" type="Label" parent="MarginContainer/GridContainer" index="4"]
-margin_top = 69.0
+[node name="Label4" type="Label" parent="MarginContainer/GridContainer" index="4"]
+margin_top = 67.0
 margin_right = 55.0
-margin_bottom = 83.0
-text = "Value:"
+margin_bottom = 81.0
+text = "Type:"
 
-[node name="ValueEdit" type="LineEdit" parent="MarginContainer/GridContainer" index="5"]
+[node name="TypeSelect" type="OptionButton" parent="MarginContainer/GridContainer" index="5"]
 margin_left = 65.0
 margin_top = 64.0
 margin_right = 252.0
-margin_bottom = 88.0
-size_flags_horizontal = 3
+margin_bottom = 84.0
+toggle_mode = false
+text = "Boolean"
+items = [ "Boolean", null, false, 1, null, "Integer", null, false, 2, null, "Float", null, false, 3, null, "String", null, false, 4, null ]
+selected = 0
+
+[node name="Label2" type="Label" parent="MarginContainer/GridContainer" index="6"]
+margin_top = 99.0
+margin_right = 55.0
+margin_bottom = 113.0
+text = "Value:"
+
+[node name="ValueEdit" parent="MarginContainer/GridContainer" index="7" instance=ExtResource( 3 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 65.0
+margin_top = 94.0
+margin_right = 252.0
+margin_bottom = 118.0
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]
 [connection signal="item_selected" from="MarginContainer/GridContainer/ScopeSelect" to="." method="_on_ScopeSelect_item_selected"]
 [connection signal="text_changed" from="MarginContainer/GridContainer/VariableEdit" to="." method="_on_VariableEdit_text_changed"]
-[connection signal="text_changed" from="MarginContainer/GridContainer/ValueEdit" to="." method="_on_ValueEdit_text_changed"]
+[connection signal="item_selected" from="MarginContainer/GridContainer/TypeSelect" to="." method="_on_TypeSelect_item_selected"]
+[connection signal="value_changed" from="MarginContainer/GridContainer/ValueEdit" to="." method="_on_ValueEdit_value_changed"]

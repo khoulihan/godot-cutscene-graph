@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://addons/hyh.cutscene_graph/scripts/ChoiceValue.gd" type="Script" id=1]
+[ext_resource path="res://addons/hyh.cutscene_graph/scenes/VariableValueEdit.tscn" type="PackedScene" id=2]
 
 [sub_resource type="StreamTexture" id=1]
 flags = 4
@@ -22,7 +23,7 @@ __meta__ = {
 margin_left = 10.0
 margin_top = 10.0
 margin_right = 296.0
-margin_bottom = 180.0
+margin_bottom = 210.0
 custom_constants/separation = 10
 
 [node name="HSeparator" type="HSeparator" parent="HBoxContainer"]
@@ -32,13 +33,13 @@ margin_bottom = 4.0
 [node name="VariableContainer" type="HBoxContainer" parent="HBoxContainer"]
 margin_top = 14.0
 margin_right = 286.0
-margin_bottom = 170.0
+margin_bottom = 200.0
 size_flags_horizontal = 3
 custom_constants/separation = 10
 
 [node name="DisplayContainer" type="GridContainer" parent="HBoxContainer/VariableContainer"]
 margin_right = 248.0
-margin_bottom = 156.0
+margin_bottom = 186.0
 size_flags_horizontal = 3
 custom_constants/vseparation = 10
 custom_constants/hseparation = 10
@@ -96,27 +97,44 @@ text = "Dialogue"
 items = [ "Dialogue", null, false, 0, null, "Scene", null, false, 1, null, "Global", null, false, 2, null ]
 selected = 0
 
-[node name="Label4" type="Label" parent="HBoxContainer/VariableContainer/DisplayContainer"]
-margin_top = 137.0
+[node name="Label6" type="Label" parent="HBoxContainer/VariableContainer/DisplayContainer"]
+margin_top = 135.0
 margin_right = 101.0
-margin_bottom = 151.0
-text = "Value:"
+margin_bottom = 149.0
+text = "Type:"
 
-[node name="ValueEdit" type="LineEdit" parent="HBoxContainer/VariableContainer/DisplayContainer"]
+[node name="TypeSelect" type="OptionButton" parent="HBoxContainer/VariableContainer/DisplayContainer"]
 margin_left = 111.0
 margin_top = 132.0
 margin_right = 248.0
-margin_bottom = 156.0
-size_flags_horizontal = 3
+margin_bottom = 152.0
+text = "Boolean"
+items = [ "Boolean", null, false, 1, null, "Integer", null, false, 2, null, "Float", null, false, 3, null, "String", null, false, 4, null ]
+selected = 0
+
+[node name="Label4" type="Label" parent="HBoxContainer/VariableContainer/DisplayContainer"]
+margin_top = 167.0
+margin_right = 101.0
+margin_bottom = 181.0
+text = "Value:"
+
+[node name="ValueEdit" parent="HBoxContainer/VariableContainer/DisplayContainer" instance=ExtResource( 2 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 111.0
+margin_top = 162.0
+margin_right = 248.0
+margin_bottom = 186.0
 
 [node name="RemoveButton" type="ToolButton" parent="HBoxContainer/VariableContainer"]
 margin_left = 258.0
 margin_right = 286.0
-margin_bottom = 156.0
+margin_bottom = 186.0
 icon = SubResource( 1 )
 [connection signal="text_changed" from="HBoxContainer/VariableContainer/DisplayContainer/DisplayEdit" to="." method="_on_DisplayEdit_text_changed"]
 [connection signal="text_changed" from="HBoxContainer/VariableContainer/DisplayContainer/TranslationKeyEdit" to="." method="_on_TranslationKeyEdit_text_changed"]
 [connection signal="text_changed" from="HBoxContainer/VariableContainer/DisplayContainer/VariableEdit" to="." method="_on_VariableEdit_text_changed"]
 [connection signal="item_selected" from="HBoxContainer/VariableContainer/DisplayContainer/ScopeSelect" to="." method="_on_ScopeSelect_item_selected"]
-[connection signal="text_changed" from="HBoxContainer/VariableContainer/DisplayContainer/ValueEdit" to="." method="_on_ValueEdit_text_changed"]
+[connection signal="item_selected" from="HBoxContainer/VariableContainer/DisplayContainer/TypeSelect" to="." method="_on_TypeSelect_item_selected"]
+[connection signal="value_changed" from="HBoxContainer/VariableContainer/DisplayContainer/ValueEdit" to="." method="_on_ValueEdit_value_changed"]
 [connection signal="pressed" from="HBoxContainer/VariableContainer/RemoveButton" to="." method="_on_RemoveButton_pressed"]
