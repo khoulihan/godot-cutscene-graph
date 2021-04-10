@@ -461,6 +461,8 @@ func _get_graph_node_by_id(id):
 
 func clear():
 	_clear_displayed_graph()
+	if _edited != null:
+		_edited.graph.disconnect("changed", self, "_edited_resource_changed")
 	_edited = null
 
 func _clear_displayed_graph():
