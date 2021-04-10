@@ -104,6 +104,12 @@ func _await_response():
 	return yield()
 
 
+func _get_node_by_id(id):
+	if id != null:
+		return _current_graph.nodes.get(id)
+	return null
+
+
 func process_cutscene(cutscene):
 	_graph_stack = []
 	_local_store = {}
@@ -133,7 +139,7 @@ func process_cutscene(cutscene):
 			if len(_graph_stack) > 0:
 				var graph_state = _graph_stack.pop_back()
 				_current_graph = graph_state.graph
-				_current_node = graph_state.current_node.next
+				_current_node = _get_node_by_id(graph_state.current_node.next)
 				emit_signal(
 					"cutscene_resumed",
 					_current_graph.name,
@@ -195,17 +201,17 @@ func _process_dialogue_node():
 			process
 		)
 		yield(process, "completed")
-	_current_node = _current_node.next
+	_current_node = _get_node_by_id(_current_node.next)
 	
 
 func _process_branch_node():
 	var val = _get_variable(_current_node.variable, _current_node.scope)
 	for i in range(_current_node.branch_count):
 		if val == _current_node.get_value(i):
-			_current_node = _current_node.branches[i]
+			_current_node = _get_node_by_id(_current_node.branches[i])
 			return
 	# Default case, no match or no branches
-	_current_node = _current_node.next
+	_current_node = _get_node_by_id(_current_node.next)
 
 
 func _emit_choices_signal(
@@ -248,9 +254,9 @@ func _process_choice_node():
 			process
 		)
 		var choice = yield(process, "completed")
-		_current_node = _current_node.branches[choice]
+		_current_node = _get_node_by_id(_current_node.branches[choice])
 	else:
-		_current_node = _current_node.next
+		_current_node = _get_node_by_id(_current_node.next)
 
 
 func _process_set_node():
@@ -259,7 +265,7 @@ func _process_set_node():
 		_current_node.scope,
 		_current_node.get_value()
 	)
-	_current_node = _current_node.next
+	_current_node = _get_node_by_id(_current_node.next)
 
 
 func _emit_action_signal(
@@ -291,7 +297,7 @@ func _process_action_node():
 		process
 	)
 	yield(process, "completed")
-	_current_node = _current_node.next
+	_current_node = _get_node_by_id(_current_node.next)
 
 
 func _process_subgraph_node():
@@ -316,6 +322,6 @@ func _process_random_node():
 			if val == stored:
 				viable.append(_current_node.branches[i])
 	if len(viable) == 0:
-		_current_node = _current_node.next
+		_current_node = _get_node_by_id(_current_node.next)
 	else:
-		_current_node = viable[randi() % len(viable)]
+		_current_node = _get_node_by_id(viable[randi() % len(viable)])

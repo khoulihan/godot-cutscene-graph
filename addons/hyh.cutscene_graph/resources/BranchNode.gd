@@ -10,7 +10,7 @@ export (String) var variable
 export (VariableType) var variable_type = VariableType.TYPE_BOOL
 export (VariableScope) var scope
 export (int) var branch_count = 0
-export (Array, Resource) var branches
+export (Array, int) var branches
 export (Array, bool) var bool_values
 export (Array, int) var int_values
 export (Array, float) var float_values

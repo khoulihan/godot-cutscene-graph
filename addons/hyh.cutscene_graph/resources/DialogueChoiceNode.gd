@@ -8,10 +8,9 @@ const VariableType = preload("VariableSetNode.gd").VariableType
 
 export (Array, String) var variables
 export (Array, VariableScope) var scopes
-#export (Array, String) var values
 export (Array, String) var display
 export (Array, String) var display_translation_keys
-export (Array, Resource) var branches
+export (Array, int) var branches
 export (Array, VariableType) var variable_types
 export (Array, bool) var bool_values
 export (Array, int) var int_values

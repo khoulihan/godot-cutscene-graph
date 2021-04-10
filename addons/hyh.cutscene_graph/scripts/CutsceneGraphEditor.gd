@@ -238,6 +238,7 @@ func _graph_popup_index_pressed(index):
 		GraphPopupMenuItems.ADD_RANDOM_NODE:
 			new_editor_node = EditorRandomNode.instance()
 			new_graph_node = RandomNode.new()
+	new_graph_node.id = _edited.graph.get_next_id()
 	new_graph_node.offset = _last_popup_position
 	_graph_edit.add_child(new_editor_node)
 	if _graph_edit.get_child_count() == 3: # TODO: magic number
@@ -245,7 +246,7 @@ func _graph_popup_index_pressed(index):
 	if new_editor_node.has_method("populate_characters"):
 		new_editor_node.populate_characters(_edited.graph.characters)
 	new_editor_node.configure_for_node(new_graph_node)
-	_edited.graph.nodes.append(new_graph_node)
+	_edited.graph.nodes[new_graph_node.id] = new_graph_node
 	if new_editor_node.is_root:
 		_edited.graph.root_node = new_graph_node
 	_connect_node_signals(new_editor_node)
@@ -298,7 +299,7 @@ func _action_confirmed():
 					# This one just gets removed
 					_graph_edit.disconnect_node(connection.from, connection.from_port, connection.to, connection.to_port)
 			var node = _graph_edit.get_node(_node_to_remove)
-			_edited.graph.nodes.erase(node.node_resource)
+			_edited.graph.nodes.erase(node.node_resource.id)
 			_graph_edit.remove_child(node)
 			_set_dirty(true)
 		ConfirmationActions.CLOSE_GRAPH:
@@ -374,7 +375,7 @@ func _draw_edited_graph():
 		_cutscene_name.text = _get_name(_edited.graph)
 
 		# Now create and configure the display nodes
-		for node in _edited.graph.nodes:
+		for node in _edited.graph.nodes.values():
 			var editor_node
 			if node is DialogueTextNode:
 				editor_node = EditorTextNode.instance()
@@ -399,16 +400,20 @@ func _draw_edited_graph():
 			_connect_node_signals(editor_node)
 
 		# Second pass to create connections
-		for node in _edited.graph.nodes:
+		for node in _edited.graph.nodes.values():
 			if node.next != null:
 				var from = _get_editor_node_for_graph_node(node)
-				var to = _get_editor_node_for_graph_node(node.next)
+				var to = _get_editor_node_for_graph_node(
+					_edited.graph.nodes[node.next]
+				)
 				_graph_edit.connect_node(from.name, 0, to.name, 0)
 			if node is DialogueChoiceNode or node is BranchNode or node is RandomNode:
 				var from = _get_editor_node_for_graph_node(node)
 				for index in range(0, node.branches.size()):
 					if node.branches[index]:
-						var to = _get_editor_node_for_graph_node(node.branches[index])
+						var to = _get_editor_node_for_graph_node(
+							_edited.graph.nodes[node.branches[index]]
+						)
 						_graph_edit.connect_node(from.name, index + 1, to.name, 0)
 		
 		if _edited.scroll_offset != null:
@@ -451,10 +456,7 @@ func _get_editor_node_for_graph_node(n):
 
 
 func _get_graph_node_by_id(id):
-	for node in _edited.graph.nodes:
-		if node.get_rid() == id:
-			return node
-	return null
+	return _edited.graph.nodes.get(id)
 
 
 func clear():
@@ -495,12 +497,12 @@ func _update_edited_graph():
 			var from_dialogue_node = from.node_resource
 			var to_dialogue_node = to.node_resource
 			if from_dialogue_node is DialogueTextNode or from_dialogue_node is VariableSetNode or from_dialogue_node is ActionNode or from_dialogue_node is SubGraph:
-				from_dialogue_node.next = to_dialogue_node
+				from_dialogue_node.next = to_dialogue_node.id
 			elif from_dialogue_node is DialogueChoiceNode or from_dialogue_node is BranchNode or from_dialogue_node is RandomNode:
 				if from_slot == 0:
-					from_dialogue_node.next = to_dialogue_node
+					from_dialogue_node.next = to_dialogue_node.id
 				else:
-					from_dialogue_node.branches[from_slot - 1] = to_dialogue_node
+					from_dialogue_node.branches[from_slot - 1] = to_dialogue_node.id
 
 
 func _update_node_characters():
