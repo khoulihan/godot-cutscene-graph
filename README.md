@@ -2,6 +2,7 @@
 
 This is a plugin for [Godot Engine](https://godotengine.org) to create and edit graphs of cutscenes and dialogue resources.
 
+**This repository has been [migrated to Codeberg](https://codeberg.org/hyhgames/godot-cutscene-graph).**
 
 ## Installation
 
